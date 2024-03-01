@@ -104,6 +104,7 @@ kubelogin convert-kubeconfig \
   --client-secret "${ARM_CLIENT_SECRET}" \
   -l spn # <-- service principal
 
+
 # This requires sufficient Kubernetes RBAC
 kubectl get pods
 ```

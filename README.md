@@ -111,12 +111,10 @@ kubectl get pods
 ```bash
 docker run --rm \
   --name azcli \
-  -v $(pwd)/entrypoint.sh:/entrypoint.sh:ro \
-  -v $(pwd)/deployment.yml:/deployment.yml:ro \
+  -v $(pwd):/app:ro \
   ghcr.io/licenseware/azcli-aks:2.57.0 \
-  bash -eux /entrypoint.sh
+  bash -eux /app/entrypoint.sh
 ```
-
 
 ## FAQ
 

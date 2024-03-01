@@ -1,0 +1,157 @@
+name: build-docker
+
+on:
+  workflow_call:
+    inputs:
+      build-args:
+        default: null
+        description: Build arguments
+        type: string
+      context:
+        default: "."
+        description: Context of the Dockerfile
+        type: string
+      image-name:
+        description: Image name
+        required: true
+        type: string
+      image-extra-tags:
+        default: ""
+        description: Image tags
+        type: string
+      image-target:
+        default: null
+        description: Target stage of the Dockerfile
+        type: string
+      platforms:
+        default: linux/amd64
+        description: Platforms to build for
+        type: string
+      push:
+        default: true
+        description: Whether or not to push image to registry
+        type: boolean
+      ref:
+        default: ${{ github.ref }}
+        description: Ref to checkout
+        type: string
+      runner:
+        default: ubuntu-latest
+        description: Runner to use
+        type: string
+      scout-cves:
+        default: true
+        description: Whether or not to run scout CVEs
+        type: boolean
+      scout-compare:
+        default: false
+        description: Whether or not to run scout compare
+        type: boolean
+      scout-comment-pr:
+        default: false
+        description: Whether or not to comment on PR
+        type: boolean
+    outputs:
+      digest:
+        description: Image digest
+        value: ${{ jobs.build.outputs.digest }}
+      imageid:
+        description: Image ID
+        value: ${{ jobs.build.outputs.imageid }}
+      metadata:
+        description: Build result metadata
+        value: ${{ jobs.build.outputs.metadata }}
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+        description: Used to push the image to the Docker Hub registry and/or scan the image with scout
+      DOCKERHUB_PASSWORD:
+        required: true
+        description: Used to push the image to the Docker Hub registry and/or scan the image with scout
+
+jobs:
+  build:
+    outputs:
+      digest: ${{ steps.build-push.outputs.digest }}
+      imageid: ${{ steps.build-push.outputs.image-id }}
+      metadata: ${{ steps.build-push.outputs.metadata }}
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+      - name: Login to Docker hub
+        uses: docker/login-action@v3
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+      - id: meta
+        name: Docker metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ inputs.image-name }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+      - id: build-push
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          build-args: ${{ inputs.build-args }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: ${{ inputs.context }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: ${{ inputs.platforms }}
+          push: ${{ inputs.push }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ inputs.image-extra-tags }}
+          target: ${{ inputs.image-target }}
+      - if: inputs.scout-compare
+        name: Docker Scout - compare
+        uses: docker/scout-action@v1
+        with:
+          command: compare
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ignore-unchanged: true
+          image: ${{ steps.meta.outputs.tags }}
+          only-severities: critical,high,medium
+          to: ${{ inputs.image-name }}:latest
+          write-comment: ${{ inputs.scout-comment-pr }}
+      - if: inputs.scout-cves
+        name: Docker Scout - cves
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          ignore-unchanged: true
+          image: ${{ steps.meta.outputs.tags }}
+          only-fixed: true
+          only-severities: medium,high,critical
+          sarif-file: sarif.output.json
+          summary: true
+      - name: Create unique job identifier
+        id: job-id
+        run: |
+          four_character_timestamp=$(date +%s | sha256sum | base64 | head -c 4)
+          run_id=$(echo ${{ github.run_id }} | sha256sum | base64 | head -c 4)
+          job_id="${four_character_timestamp}${run_id}"
+          echo "job-id=$job_id" >> $GITHUB_OUTPUT
+      - if: inputs.scout-cves
+        name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: warn
+          name: scout-results-${{ steps.job-id.outputs.job-id }}
+          path: sarif.output.json

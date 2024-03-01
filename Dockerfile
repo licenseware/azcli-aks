@@ -19,7 +19,7 @@ ARG DUMB_INIT
 ARG KUBECTL_VERSION
 
 USER root
-RUN curl -sSfL -o /usr/local/bin/kubelogin \
+RUN curl -fLo /usr/local/bin/kubelogin \
   https://github.com/Azure/kubelogin/releases/download/${KUBELOGIN_TAG}/kubelogin-${TARGETOS}-${TARGETARCH}.zip && \
   chmod +x /usr/local/bin/kubelogin && \
   curl -fLo /usr/local/bin/dumb-init ${DUMB_INIT} && \

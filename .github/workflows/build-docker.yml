@@ -106,7 +106,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
       - id: build-push
         name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           build-args: ${{ inputs.build-args }}
           cache-from: type=gha

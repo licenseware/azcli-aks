@@ -19,13 +19,16 @@ ARG DUMB_INIT
 ARG KUBECTL_VERSION
 
 USER root
-RUN curl -fLo /usr/local/bin/kubelogin \
+RUN curl -fLo kubelogin.zip \
   https://github.com/Azure/kubelogin/releases/download/${KUBELOGIN_TAG}/kubelogin-${TARGETOS}-${TARGETARCH}.zip && \
+  unzip kubelogin.zip && \
+  find bin -name kubelogin -type f -exec mv {} /usr/local/bin/kubelogin \; && \
   chmod +x /usr/local/bin/kubelogin && \
   curl -fLo /usr/local/bin/dumb-init ${DUMB_INIT} && \
   chmod +x /usr/local/bin/dumb-init && \
   curl -fLo /usr/local/bin/kubectl \
-  "https://dl.k8s.io/release/$(test ! -z '${KUBECTL_VERSION}' && echo ${KUBECTL_VERSION} || curl -L -s https://dl.k8s.io/release/stable.txt)/bin/${TARGETOS}/${TARGETARCH}/kubectl"
+  "https://dl.k8s.io/release/$(test ! -z "${KUBECTL_VERSION}" && echo ${KUBECTL_VERSION} || curl -L -s https://dl.k8s.io/release/stable.txt)/bin/${TARGETOS}/${TARGETARCH}/kubectl" && \
+  chmod +x /usr/local/bin/kubectl
 
 
 FROM --platform=$TARGETOS/$TARGETARCH mcr.microsoft.com/azure-cli:${BASE_TAG}

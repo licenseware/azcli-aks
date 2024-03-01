@@ -103,7 +103,7 @@ jobs:
           images: |
             ${{ inputs.image-name }}
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       - id: build-push
         name: Build and push
         uses: docker/build-push-action@v5

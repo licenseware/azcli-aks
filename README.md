@@ -37,6 +37,9 @@ spec:
       containers:
       - image: busybox
         name: busybox
+        command:
+        - sleep
+        - infinity
 ```
 
 ```bash

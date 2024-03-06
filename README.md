@@ -28,7 +28,6 @@ details below.
 
 ```terraform
 data "azuread_client_config" "current" {}
-data "azurerm_subscription" "current" {}
 
 data "azurerm_kubernetes_cluster" "this" {
   name                = "my-aks-cluster"

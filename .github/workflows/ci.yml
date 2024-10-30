@@ -26,58 +26,40 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-docker.yml
+    uses: meysam81/build-docker@v1
     with:
-      context: .
       image-name: ghcr.io/${{ github.repository }}
       platforms: linux/amd64,linux/arm64
-      push: true
-      scout-cves: true
-      scout-compare: true
-      scout-comment-pr: true
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      kubescape: true
 
   build-edge:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-docker.yml
+      security-events: write
+    uses: meysam81/build-docker@v1
     with:
       context: .
       image-name: ghcr.io/${{ github.repository }}
       image-extra-tags: |
         ghcr.io/${{ github.repository }}:${{ github.run_id }}
       platforms: linux/amd64,linux/arm64
-      push: true
-      scout-cves: true
-      scout-compare: false
-      scout-comment-pr: false
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      kubescape: true
+      kubescape-upload-sarif: true
 
   build-tag:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/build-docker.yml
+    uses: meysam81/build-docker@v1
     with:
-      context: .
       image-name: ghcr.io/${{ github.repository }}
       image-extra-tags: |
         ghcr.io/${{ github.repository }}:${{ github.ref_name }}
       platforms: linux/amd64,linux/arm64
-      push: true
-      scout-cves: true
-      scout-compare: false
-      scout-comment-pr: false
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      kubescape: true
 
   checks:
     if: contains(fromJSON('["push", "pull_request", "schedule"]'), github.event_name)

@@ -36,7 +36,7 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 
 FROM mcr.microsoft.com/azure-cli:${BASE_TAG}
 
-RUN addgroup -S licenseware && adduser -S licenseware -G licenseware
+RUN useradd -r licenseware
 
 COPY --from=bins /usr/local/bin/kubelogin /usr/local/bin/kubelogin
 COPY --from=bins /usr/local/bin/dumb-init /usr/local/bin/dumb-init

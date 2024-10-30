@@ -36,13 +36,11 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 
 FROM mcr.microsoft.com/azure-cli:${BASE_TAG}
 
-RUN useradd -r licenseware
-
 COPY --from=bins /usr/local/bin/kubelogin /usr/local/bin/kubelogin
 COPY --from=bins /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 COPY --from=bins /usr/local/bin/kubectl /usr/local/bin/kubectl
 
-USER licenseware:licenseware
+USER nonroot:nonroot
 
 ENTRYPOINT [ "dumb-init", "--" ]
 CMD [ "az", "--help" ]

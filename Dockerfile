@@ -1,4 +1,4 @@
-ARG BASE_TAG=2.65.0
+ARG BASE_TAG=2.66.0
 
 FROM curlimages/curl AS bins
 

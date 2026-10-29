@@ -28,7 +28,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: meysam81/build-docker@v1
+      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
         with:
           image-name: ghcr.io/${{ github.repository }}
           platforms: linux/amd64,linux/arm64
@@ -42,7 +42,7 @@ jobs:
       packages: write
       security-events: write
     steps:
-      - uses: meysam81/build-docker@v1
+      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
         with:
           context: .
           image-name: ghcr.io/${{ github.repository }}
@@ -64,7 +64,7 @@ jobs:
     steps:
       - id: release-please
         name: Release please
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           release-type: simple
 
@@ -77,7 +77,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: meysam81/build-docker@v1
+      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
         with:
           image-name: ghcr.io/${{ github.repository }}
           image-extra-tags: |
@@ -90,14 +90,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Run linters
         run: |
           pip install -U pip pre-commit
           pre-commit run -a
       - if: failure() && github.ref_name != 'refs/heads/main'
         name: Commit linting changes
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@cc9c08ba6c8df3b93a8f2db63e89b98368ae2ae8 # v11.1.1
         with:
           message: "chore: lint 🚨"
           new_branch: ${{ github.head_ref || github.ref_name }}

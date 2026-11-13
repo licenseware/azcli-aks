@@ -28,7 +28,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
+      - uses: meysam81/build-docker@6d4a370d0cf22b35eb467698607b351532b2b163 # v1.7.4
         with:
           image-name: ghcr.io/${{ github.repository }}
           platforms: linux/amd64,linux/arm64
@@ -42,7 +42,7 @@ jobs:
       packages: write
       security-events: write
     steps:
-      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
+      - uses: meysam81/build-docker@6d4a370d0cf22b35eb467698607b351532b2b163 # v1.7.4
         with:
           context: .
           image-name: ghcr.io/${{ github.repository }}
@@ -77,7 +77,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: meysam81/build-docker@4702dd58cc9a0c0499fbdfe1e1bf8c23d4bc7c8c # v1.7.3
+      - uses: meysam81/build-docker@6d4a370d0cf22b35eb467698607b351532b2b163 # v1.7.4
         with:
           image-name: ghcr.io/${{ github.repository }}
           image-extra-tags: |
